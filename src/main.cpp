@@ -39,6 +39,8 @@ void mqttCallback(char *topic, uint8_t *payload, unsigned int length) {}
 int getState();
 
 uint32_t currentMillis;
+uint32_t previousMillis = 0;
+const long interval = 5000;
 int gateOpenPin;
 int gateClosedPin;
 
@@ -148,11 +150,12 @@ void setup()
   setupMQTT();
   setupOTA();
 
-  gateOpenPin = 15;
+  gateOpenPin = 12;
   gateClosedPin = 13;
 
   pinMode(gateOpenPin, INPUT);
   pinMode(gateClosedPin, INPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
 
   attachInterrupt(digitalPinToInterrupt(gateOpenPin), handleInterrupt, CHANGE);
   attachInterrupt(digitalPinToInterrupt(gateClosedPin), handleInterrupt, CHANGE);
@@ -171,6 +174,19 @@ void loop()
     lastMqttConnectionAttempt = currentMillis;
     printf("Reconnecting to mqtt\n");
     mqttReconnect();
+  }
+
+  if (currentMillis - previousMillis >= interval) {
+    // spam the state over MQTT each interval
+    previousMillis = currentMillis;
+
+    int reading = getState();
+
+    state = reading;
+
+    Serial.println("Loop value: " + String(state));
+
+    publishState();
   }
 }
 
@@ -199,7 +215,7 @@ ICACHE_RAM_ATTR void handleInterrupt()
 
   state = reading;
 
-  Serial.println("value: " + String(state));
+  Serial.println("Interrupt value: " + String(state));
 
   publishState();
 }
@@ -211,14 +227,20 @@ int getState()
 
   if (!gateOpen && !gateClosed)
   {
+    digitalWrite(LED_BUILTIN, HIGH);
+    Serial.println("Gate Partially Open");
     return 1;
   }
   else if (!gateOpen && gateClosed)
   {
+    digitalWrite(LED_BUILTIN, LOW);
+    Serial.println("Gate Closed");
     return 0;
   }
-  else
+  else 
   {
+    digitalWrite(LED_BUILTIN, HIGH);
+    Serial.println("Gate Open");
     return 2;
   }
 }
