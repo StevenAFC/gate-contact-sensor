@@ -346,7 +346,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "Gate Sensor.kicad_pro",
+    "filename": "gate-sensor.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -380,7 +380,7 @@
       "idf": "",
       "netlist": "",
       "specctra_dsn": "",
-      "step": "Gate Sensor.step",
+      "step": "gate-sensor.step",
       "vrml": ""
     },
     "page_layout_descr_file": ""

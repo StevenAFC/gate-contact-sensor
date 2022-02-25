@@ -184,7 +184,7 @@ void loop()
 
     state = reading;
 
-    Serial.println("Loop value: " + String(state));
+    // Serial.println("Loop value: " + String(state));
 
     publishState();
   }
@@ -225,6 +225,11 @@ int getState()
   int gateOpen = digitalRead(gateOpenPin);
   int gateClosed = digitalRead(gateClosedPin);
 
+  Serial.print("Open: ");
+  Serial.println(gateOpen);
+  Serial.print("Closed: ");
+  Serial.println(gateClosed);
+
   if (!gateOpen && !gateClosed)
   {
     digitalWrite(LED_BUILTIN, HIGH);
@@ -237,11 +242,15 @@ int getState()
     Serial.println("Gate Closed");
     return 0;
   }
-  else 
+  else if (gateOpen && !gateClosed)
   {
     digitalWrite(LED_BUILTIN, HIGH);
     Serial.println("Gate Open");
     return 2;
+  } 
+  else 
+  {
+    return 3;
   }
 }
 
@@ -263,7 +272,7 @@ void publishState()
 
   boolean success = mqttClient.publish(&MQTT_TOPIC_STATE[0], &payload[0], true);
 
-  Serial.println("MQTT Client Connected: " + String(mqttClient.connected()));
+  //Serial.println("MQTT Client Connected: " + String(mqttClient.connected()));
   Serial.println("MQTT Message Publish Success: " + String(success));
 }
 
